@@ -1,95 +1,79 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+'use client';
+import { createGlobalStyle, ThemeProvider } from 'styled-components';
+import theme from '@/styles/theme';
+import { useEffect, useState } from 'react';
+import {
+    DatabaseReference,
+    DataSnapshot,
+    getDatabase,
+    ref,
+    set,
+    get,
+} from 'firebase/database';
+import { database } from '@/utils/firebase';
+
+const GlobalStyle = createGlobalStyle`
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: ${(props) => props.theme.colors.background};
+  }
+`;
 
 export default function Home() {
-  return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.tsx</code>
-        </p>
+    console.log('I am inside myapp');
+    const [data, setData] = useState<any>();
+
+    useEffect(() => {
+        readDataFromDatabase();
+    }, []);
+
+    const readDataFromDatabase = async () => {
+        const db = database;
+
+        try {
+            const productsRef: DatabaseReference = ref(database, 'products');
+            const snapshot: DataSnapshot = await get(productsRef);
+
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                console.log('Data from the database: ', data);
+                setData(data);
+            } else {
+                console.log('No data found in the database: ', data);
+            }
+        } catch (error) {
+            console.error('Error in reading data from the database: ', error);
+        }
+    };
+
+    const addItemToDatabase = async () => {
+        console.log('addItemToDatabase');
+        const db = database;
+        const randomID = crypto.randomUUID();
+
+        try {
+            await set(ref(db, 'products/' + randomID), {
+                name: 'T-shirt',
+                price: 0.99,
+            });
+            console.log('Data added successfully.');
+        } catch (error) {
+            console.error('Error adding data to Firebase:', error);
+        }
+    };
+
+    return (
         <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+            {data &&
+                Object.values(data).map((element: any, index) => (
+                    <div key={index} style={{ backgroundColor: 'red' }}>
+                        <p>{element?.name}</p>
+                        <p>{element?.price}</p>
+                    </div>
+                ))}
+            <button onClick={addItemToDatabase}>Add Item to Database</button>
         </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
+    );
 }
