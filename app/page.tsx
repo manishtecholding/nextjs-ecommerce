@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { DatabaseReference, DataSnapshot, ref, get } from 'firebase/database';
 import { database } from '@/utils/firebase';
 import styled from 'styled-components';
+import Link from 'next/link';
 
 // Card component
 const Card = styled.div`
@@ -50,8 +51,16 @@ const CardListContainer = styled.div`
     justify-content: center;
 `;
 
+const ProductLink = styled.a`
+    color: #000000;
+    text-decoration: none;
+
+    &:hover {
+        text-decoration: none;
+    }
+`;
+
 export default function Home() {
-    console.log('I am inside myapp');
     const [data, setData] = useState<any>();
 
     useEffect(() => {
@@ -67,10 +76,10 @@ export default function Home() {
 
             if (snapshot.exists()) {
                 const data = snapshot.val();
-                console.log('Data from the database: ', data);
+                console.log(Object.entries(data));
                 setData(data);
             } else {
-                console.log('No data found in the database: ', data);
+                console.error('No data found in the database: ', data);
             }
         } catch (error) {
             console.error('Error in reading data from the database: ', error);
@@ -78,7 +87,6 @@ export default function Home() {
     };
 
     const addItemToDatabase = async () => {
-        console.log('addItemToDatabase');
         const db = database;
         const randomID = crypto.randomUUID();
 
@@ -98,13 +106,25 @@ export default function Home() {
     return (
         <CardListContainer>
             {data &&
-                Object.values(data).map((product: any, index) => (
-                    <Card key={index}>
-                        <CardImage src={product.imageUrl} alt={product.name} />
-                        <CardName>{product.name}</CardName>
-                        <CardPrice>{'$ ' + product.price}</CardPrice>
-                        <CardDescription>{product?.description?.length > 125 ? product.description.slice(0,125) + '...' : product?.description}</CardDescription>
-                    </Card>
+                Object.entries(data).map((product: any, key) => (
+                    // product[0] -> id of the product
+                    // product[1] -> All the other details of the product i.e. product[1]?.description
+                    <ProductLink href={`/products/${product[0]}`}>
+                        <Card key={key}>
+                            <CardImage
+                                src={product[1].imageUrl}
+                                alt={product[1].name}
+                            />
+                            <CardName>{product[1].name}</CardName>
+                            <CardPrice>{'$ ' + product[1].price}</CardPrice>
+                            <CardDescription>
+                                {product[1]?.description?.length > 125
+                                    ? product[1].description.slice(0, 125) +
+                                      '...'
+                                    : product[1]?.description}
+                            </CardDescription>
+                        </Card>
+                    </ProductLink>
                 ))}
         </CardListContainer>
     );
