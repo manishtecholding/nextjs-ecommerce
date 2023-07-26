@@ -33,6 +33,7 @@ const ProductsDetail = ({ params }: { params: { slug: string } }) => {
 
     const readDataFromDatabase = async (slug: any) => {
         const db = database;
+		setIsLoading(true);
 
         try {
             const productsRef: DatabaseReference = ref(
