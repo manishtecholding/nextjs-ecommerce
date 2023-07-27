@@ -5,11 +5,12 @@ import { useEffect, useState } from 'react';
 import { DatabaseReference, DataSnapshot, ref, get } from 'firebase/database';
 import { database } from '@/utils/firebase';
 import PrivateRoute from '@/utils/PrivateRoute';
+import Header from '../common/header';
 
 // Card component
 const Card = styled.div`
     width: 18.75em;
-    height: 25em;
+    height: 30em;
     border: 1px solid #ddd;
     border-radius: 0.5em;
     padding: 1em;
@@ -61,6 +62,14 @@ const ProductLink = styled.a`
     }
 `;
 
+const AddToCartButton = styled.button`
+    background-color: #1616fa;
+    border: none;
+    color: white;
+    padding: 10px;
+    border-radius: 8px;
+`;
+
 const Products = () => {
     const [data, setData] = useState<any>();
 
@@ -103,15 +112,18 @@ const Products = () => {
         }
     };
     return (
-        // This is just an reference for future(for private routes)
-        // <PrivateRoute>
+        <>
+            <Header />
             <CardListContainer>
                 {data &&
                     Object.entries(data).map((product: any, key) => (
                         // product[0] -> id of the product
                         // product[1] -> All the other details of the product i.e. product[1]?.description
-                        <ProductLink href={`/products/${product[0]}`}>
-                            <Card key={key}>
+                        <ProductLink
+                            href={`/products/${product[0]}`}
+                            key={product[0]}
+                        >
+                            <Card>
                                 <CardImage
                                     src={product[1].imageUrl}
                                     alt={product[1].name}
@@ -124,11 +136,12 @@ const Products = () => {
                                           '...'
                                         : product[1]?.description}
                                 </CardDescription>
+                                <AddToCartButton>Add To Cart</AddToCartButton>
                             </Card>
                         </ProductLink>
                     ))}
             </CardListContainer>
-        // </PrivateRoute>
+        </>
     );
 };
 

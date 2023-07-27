@@ -1,28 +1,28 @@
 'use client';
 import { useRouter } from 'next/navigation';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { firebaseAuth } from './firebase';
 
 const PrivateRoute = ({ children }: { children: any }) => {
-
     const router = useRouter();
-    const isAuthenticated = true;
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+
+    const getUser = async () => {
+        await firebaseAuth.onAuthStateChanged((user) => {
+            if (!user) {
+                router.push('/');
+                alert('Please Login to continue.');
+            } else {
+                setIsLoading(false);
+            }
+        });
+    };
 
     useEffect(() => {
+        getUser();
+    }, [router]);
 
-    firebaseAuth.onAuthStateChanged((user) => {
-        console.log(user);
-        if(user) {
-            return;
-        } else {
-            router.push('/');
-            alert('Please login to continue to the app.');
-        }
-    })
-
-    },[isAuthenticated, router]);
-
-    return <div>PrivateRoute Works!</div>;
+    return isLoading ? <h1>Loading...</h1> : <>{children}</>;
 };
 
 export default PrivateRoute;
