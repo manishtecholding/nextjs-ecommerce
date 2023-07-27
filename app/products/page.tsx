@@ -6,6 +6,8 @@ import { DatabaseReference, DataSnapshot, ref, get } from 'firebase/database';
 import { database } from '@/utils/firebase';
 import PrivateRoute from '@/utils/PrivateRoute';
 import Header from '../common/header';
+import { add } from '@/redux/itemSlice';
+import { useDispatch } from 'react-redux';
 
 // Card component
 const Card = styled.div`
@@ -66,11 +68,12 @@ const AddToCartButton = styled.button`
     background-color: #1616fa;
     border: none;
     color: white;
-    padding: 10px;
+    padding: 0.625em;
     border-radius: 8px;
 `;
 
 const Products = () => {
+    const dispatch = useDispatch();
     const [data, setData] = useState<any>();
 
     useEffect(() => {
@@ -111,6 +114,34 @@ const Products = () => {
             console.error('Error adding data to Firebase:', error);
         }
     };
+
+    // <button onClick={() => dispatch(add(item))}>Add</button>
+
+    // const item: any = {
+    //     id: 3,
+    //     imageUrl:
+    //         'https://www.shutterstock.com/image-photo/bangkok-thailand-samsung-launch-new-600w-1704070018.jpg',
+    //     name: 'Samsung A1',
+    //     description:
+    //         "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+    //     price: 300,
+    // };
+
+    const handleAddToCart = (item: any, id: any) => {
+        event?.preventDefault();
+        console.log(item);
+        const { imageUrl, name, description, price } = item;
+
+        const cartItem = {
+            id,
+            imageUrl,
+            name,
+            description,
+            price
+        }
+
+        dispatch(add(cartItem))
+    }
     return (
         <>
             <Header />
@@ -136,7 +167,7 @@ const Products = () => {
                                           '...'
                                         : product[1]?.description}
                                 </CardDescription>
-                                <AddToCartButton>Add To Cart</AddToCartButton>
+                                <AddToCartButton onClick={() => handleAddToCart(product[1], product[0])}>Add To Cart</AddToCartButton>
                             </Card>
                         </ProductLink>
                     ))}

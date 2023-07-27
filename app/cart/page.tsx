@@ -140,9 +140,8 @@ const Cart = () => {
                 </Table>
             </div>
 
-            <button onClick={() => dispatch(add(item))}>Add</button>
-
-            <button onClick={() => dispatch(remove(1))}>Remove</button>
+            {/* <button onClick={() => dispatch(add(item))}>Add</button>
+            <button onClick={() => dispatch(remove(1))}>Remove</button> */}
 
             <Total>Total: $ {total} </Total>
         </PrivateRoute>
